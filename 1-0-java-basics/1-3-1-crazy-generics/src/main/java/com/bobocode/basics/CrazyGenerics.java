@@ -104,10 +104,11 @@ public class CrazyGenerics {
     }
 
     /**
-     * {@link CollectionRepository} defines a contract of a runtime store for entities based on any {@link Collection}.
-     * It has methods that allow to save new entity, and get whole collection.
+     * * {@link CollectionRepository} defines a contract of a runtime store for entities based on any {@link Collection}.
+     * * It has methods that allow to save new entity, and get whole collection.
+     * *
+     * * @param <T> – a type of the entity that should be a subclass of {@link BaseEntity}
      *
-     * @param <T> – a type of the entity that should be a subclass of {@link BaseEntity}
      * @param <C> – a type of any collection
      */
     interface CollectionRepository<T extends BaseEntity, C extends Collection<T>> {
@@ -141,8 +142,6 @@ public class CrazyGenerics {
         default int compareTo(Collection<?> o) {
             return Integer.compare(this.size(), o.size());
         }
-
-        ;
     }
 
     /**
