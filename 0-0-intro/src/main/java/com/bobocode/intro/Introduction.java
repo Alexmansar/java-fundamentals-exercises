@@ -1,6 +1,6 @@
 package com.bobocode.intro;
 
-import com.bobocode.util.ExerciseNotCompletedException;
+import java.util.Base64;
 
 /**
  * Welcome! This is an introduction class that will show you a simple example of Bobocode exercise.
@@ -39,7 +39,6 @@ public class Introduction {
      * @return encoded message
      */
     public String encodeMessage(String message) {
-        // todo: switch to branch "completed" in order to see how it should be implemented
-        throw new ExerciseNotCompletedException();
+        return Base64.getEncoder().encodeToString(message.getBytes());
     }
 }
