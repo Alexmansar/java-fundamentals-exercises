@@ -74,8 +74,6 @@ public class HeterogeneousMaxHolder {
         if (key == null) {
             return null;
         }
-        // Object object;
-        //   requireNonNull(key);
         Object currentMax = map.get(key);
         return key.cast(currentMax);
     }
