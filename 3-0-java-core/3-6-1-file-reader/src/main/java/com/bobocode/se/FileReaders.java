@@ -1,6 +1,7 @@
 package com.bobocode.se;
 
-import com.bobocode.util.ExerciseNotCompletedException;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * {@link FileReaders} provides an API that allow to read whole file into a {@link String} by file name.
@@ -14,6 +15,20 @@ public class FileReaders {
      * @return string that holds whole file content
      */
     public static String readWholeFile(String fileName) {
-        throw new ExerciseNotCompletedException(); //todo
+        String str;
+        FileReader reader = null;
+        try {
+            reader = new FileReader(fileName);
+            str = String.valueOf(reader.read());
+        } catch (IOException e) {
+            str = "";
+        }
+     /*   try {
+            reader.ready();
+        } catch (IOException e) {
+            str = reader.toString();
+        }
+     */
+        return str;
     }
 }
