@@ -7,6 +7,12 @@ import com.bobocode.util.ExerciseNotCompletedException;
  * are ignored.
  */
 public class FileStats {
+    String fileName;
+
+    public FileStats(String fileName) {
+        this.fileName = fileName;
+    }
+
     /**
      * Creates a new immutable {@link FileStats} objects using data from text file received as a parameter.
      *
@@ -14,17 +20,36 @@ public class FileStats {
      * @return new FileStats object created from text file
      */
     public static FileStats from(String fileName) {
-        throw new ExerciseNotCompletedException(); //todo
+        return new FileStats(fileName);
+        //     throw new ExerciseNotCompletedException(); //todo
     }
 
     /**
-     * Returns a number of occurrences of the particular character.
-     *
-     * @param character a specific character
-     * @return a number that shows how many times this character appeared in a text file
+     *      * Returns a number of occurrences of the particular character.
+     *      *
+     *      * @param character a specific character
+     *      * @return a number that shows how many times this character appeared in a text file
      */
     public int getCharCount(char character) {
-        throw new ExerciseNotCompletedException(); //todo
+        int count = 0;
+        char[] chars = fileName.toCharArray();
+        for (char c : chars) {
+            if (c == character){
+                count++;
+            }
+        }
+
+
+       /* if (fileName.contains(character)) {
+            count++;
+        } else {
+
+        }
+        if (fileName.length() == 0) {
+            throw new FileStatsException("Empty");
+        }
+       */ return count;
+//        throw new ExerciseNotCompletedException(); //todo
     }
 
     /**
