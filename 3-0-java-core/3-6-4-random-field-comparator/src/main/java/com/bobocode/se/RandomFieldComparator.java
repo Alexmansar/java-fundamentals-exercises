@@ -1,6 +1,8 @@
 package com.bobocode.se;
 
 import com.bobocode.util.ExerciseNotCompletedException;
+
+import java.lang.reflect.Field;
 import java.util.Comparator;
 
 /**
@@ -10,16 +12,21 @@ import java.util.Comparator;
  * If no field is available to compare, the constructor throws {@link IllegalArgumentException}
  *
  * @param <T> the type of the objects that may be compared by this comparator
- *<p><p>
- *  <strong>TODO: to get the most out of your learning, <a href="https://www.bobocode.com/learn">visit our website</a></strong>
- *  <p>
- *
+ *            <p><p>
+ *            <strong>TODO: to get the most out of your learning, <a href="https://www.bobocode.com/learn">visit our website</a></strong>
+ *            <p>
  * @author Stanislav Zabramnyi
  */
 public class RandomFieldComparator<T> implements Comparator<T> {
 
+    Class<T> targetType;
+    Field fieldCompare;
+
     public RandomFieldComparator(Class<T> targetType) {
-        throw new ExerciseNotCompletedException(); // todo: implement this constructor;
+        this.targetType = targetType;
+        this.fieldCompare = chooseFieldToCompare(targetType);
+
+        //     throw new ExerciseNotCompletedException(); // todo: implement this constructor;
     }
 
     /**
@@ -29,12 +36,13 @@ public class RandomFieldComparator<T> implements Comparator<T> {
      * @param o1
      * @param o2
      * @return positive int in case of first parameter {@param o1} is greater than second one {@param o2},
-     *         zero if objects are equals,
-     *         negative int in case of first parameter {@param o1} is less than second one {@param o2}.
+     * zero if objects are equals,
+     * negative int in case of first parameter {@param o1} is less than second one {@param o2}.
      */
     @Override
     public int compare(T o1, T o2) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method;
+
+        //       throw new ExerciseNotCompletedException(); // todo: implement this method;
     }
 
     /**
@@ -54,4 +62,11 @@ public class RandomFieldComparator<T> implements Comparator<T> {
     public String toString() {
         throw new ExerciseNotCompletedException(); // todo: implement this method;
     }
+
+    private Field chooseFieldToCompare(Class<T> targetType) {
+        return Arrays.stream(targetType.getDeclaredFields())
+                .filter(f -> Comparable.class.isAssignableFrom(f.getType()) || f.getType().isPrimitive())
+                .findAny().orElseThrow(() -> new IllegalArgumentException("There are no fields available to compare"));
+    }
+
 }
