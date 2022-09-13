@@ -1,6 +1,7 @@
 package com.bobocode.oop.service;
 
 import com.bobocode.oop.data.FlightDao;
+import com.bobocode.oop.data.Flights;
 
 import java.util.List;
 
@@ -13,7 +14,11 @@ import static java.util.stream.Collectors.toList;
  * todo: 2. Using {@link com.bobocode.oop.data.FlightDao} implement method {@link FlightService#searchFlights(String)}
  */
 public class FlightService {
-    FlightDao flightDao = new FlightDao();
+    Flights flights;
+
+    public FlightService(Flights flights) {
+        this.flights = flights;
+    }
 
     /**
      * Adds a new flight number
@@ -22,7 +27,7 @@ public class FlightService {
      * @return {@code true} if a flight number was added, {@code false} otherwise
      */
     public boolean registerFlight(String flightNumber) {
-        return flightDao.register(flightNumber);
+        return flights.register(flightNumber);
     }
 
     /**
@@ -32,7 +37,7 @@ public class FlightService {
      * @return a list of found flight numbers
      */
     public List<String> searchFlights(String query) {
-        return flightDao.findAll().stream()
+        return flights.findAll().stream()
                 .filter(flightNum -> flightNum.toUpperCase().contains(query.toUpperCase()))
                 .collect(toList());
     }

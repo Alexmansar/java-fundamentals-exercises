@@ -1,5 +1,6 @@
 package com.bobocode.oop.factory;
 
+import com.bobocode.oop.data.FlightDao;
 import com.bobocode.oop.service.FlightService;
 
 /**
@@ -15,6 +16,6 @@ public class FlightServiceFactory {
      * @return FlightService
      */
     public FlightService creteFlightService() {
-        return new FlightService();
+        return new FlightService(new FlightDao());
     }
 }
