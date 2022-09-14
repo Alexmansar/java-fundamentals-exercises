@@ -1,8 +1,9 @@
 package com.bobocode.se;
 
-import com.bobocode.util.ExerciseNotCompletedException;
+import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -40,16 +41,20 @@ public class RandomFieldComparator<T> implements Comparator<T> {
      * negative int in case of first parameter {@param o1} is less than second one {@param o2}.
      */
     @Override
-    public int compare(T o1, T o2) {
 
-        //       throw new ExerciseNotCompletedException(); // todo: implement this method;
+    public int compare(T o1, T o2) {
+        if (o1 != null && o2 != null) ;
+        return compareFieldValues(o1, o2);
     }
+    //       throw new ExerciseNotCompletedException(); // todo: implement this method;
 
     /**
      * Returns the name of the randomly-chosen comparing field.
      */
     public String getComparingFieldName() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method;
+        return fieldCompare.getName();
+
+        //throw new ExerciseNotCompletedException(); // todo: implement this method;
     }
 
     /**
@@ -60,7 +65,8 @@ public class RandomFieldComparator<T> implements Comparator<T> {
      */
     @Override
     public String toString() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method;
+        return String.format("Random field comparator of class '%s' is comparing '%s'", targetType.getSimpleName(),
+                getComparingFieldName());
     }
 
     private Field chooseFieldToCompare(Class<T> targetType) {
@@ -69,4 +75,13 @@ public class RandomFieldComparator<T> implements Comparator<T> {
                 .findAny().orElseThrow(() -> new IllegalArgumentException("There are no fields available to compare"));
     }
 
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    private <U extends Comparable<? super U>> int compareFieldValues(T o1, T o2) {
+        fieldCompare.setAccessible(true);
+        var value1 = (U) fieldCompare.get(o1);
+        var value2 = (U) fieldCompare.get(o2);
+        Comparator<U> comparator = Comparator.nullsLast(Comparator.naturalOrder());
+        return comparator.compare(value1, value2);
+    }
 }
