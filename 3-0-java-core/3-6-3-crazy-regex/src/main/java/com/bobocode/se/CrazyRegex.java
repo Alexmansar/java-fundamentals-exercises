@@ -179,7 +179,7 @@ public class CrazyRegex {
      * @return a pattern that looks for all https links in note.txt
      */
     public Pattern findOnlyLinksInNote() {
-        return Pattern.compile("https://+((www.)?\\w+(.))+?");
+        return Pattern.compile("https://+((www.)?\\w+(.))+com");
     }
 
     /**
