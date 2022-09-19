@@ -13,5 +13,9 @@ package com.bobocode.basics;
  *
  * @author Taras Boychuk
  */
-public class HelloAnnotationsExercise { // todo: mark class with the annotation according to the javadoc
+
+@Exercise("hello-annotation-basic")
+public @interface HelloAnnotationsExercise { // todo: mark class with the annotation according to the javadoc
+
+
 }
