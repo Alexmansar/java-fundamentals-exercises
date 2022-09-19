@@ -1,16 +1,32 @@
 package com.bobocode.se;
 
-import com.bobocode.util.ExerciseNotCompletedException;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 
 /**
  * {@link FileStats} provides an API that allow to get character statistic based on text file. All whitespace characters
  * are ignored.
  */
 public class FileStats {
+    char checkCharacter;
+    Map<Character, Long> characterLongMapMap;
     String fileName;
 
-    public FileStats(String fileName) {
-        this.fileName = fileName;
+    public static FileStats from(String fileName) {
+        return new FileStats(fileName);
+        //     throw new ExerciseNotCompletedException(); //todo
     }
 
     /**
@@ -19,37 +35,58 @@ public class FileStats {
      * @param fileName input text file name
      * @return new FileStats object created from text file
      */
-    public static FileStats from(String fileName) {
-        return new FileStats(fileName);
-        //     throw new ExerciseNotCompletedException(); //todo
+    private FileStats(String fileName) {
+        Path filePath = getFilePath(fileName);
+        characterLongMapMap = computeCharacterMap(filePath);
+        checkCharacter = findMostPopularCharacter(characterLongMapMap);
     }
 
+    private Path getFilePath(String fileName) {
+        Objects.requireNonNull(fileName);
+        URL fileUrl = getFileUrl(fileName);
+        try {
+            return Paths.get(fileUrl.toURI());
+        } catch (URISyntaxException e) {
+            throw new FileStatsException("Wrong file path", e);
+        }
+    }
+
+    private URL getFileUrl(String fileName) {
+        URL fileUrl = getClass().getClassLoader().getResource(fileName);
+        if (fileUrl == null) {
+            throw new FileStatsException("Wrong file path");
+        }
+        return fileUrl;
+    }
+
+    private Map<Character, Long> computeCharacterMap(Path filePath) {
+        try (Stream<String> lines = Files.lines(filePath)) {
+            return collectCharactersToCountMap(lines);
+        } catch (IOException e) {
+            throw new FileStatsException("Cannot read the file", e);
+        }
+    }
+
+
+    private Map<Character, Long> collectCharactersToCountMap(Stream<String> linesStream) {
+        return linesStream
+                .flatMapToInt(String::chars)
+                .filter(a -> a != 32)
+                .mapToObj(c -> (char) c)
+                .collect(groupingBy(Function.identity(), counting()));
+    }
+
+
     /**
-     *      * Returns a number of occurrences of the particular character.
-     *      *
-     *      * @param character a specific character
-     *      * @return a number that shows how many times this character appeared in a text file
+     * * Returns a number of occurrences of the particular character.
+     * *
+     * * @param character a specific character
+     * * @return a number that shows how many times this character appeared in a text file
      */
+
+
     public int getCharCount(char character) {
-        int count = 0;
-        char[] chars = fileName.toCharArray();
-        for (char c : chars) {
-            if (c == character){
-                count++;
-            }
-        }
-
-
-       /* if (fileName.contains(character)) {
-            count++;
-        } else {
-
-        }
-        if (fileName.length() == 0) {
-            throw new FileStatsException("Empty");
-        }
-       */ return count;
-//        throw new ExerciseNotCompletedException(); //todo
+        return Math.toIntExact(characterLongMapMap.get(character));
     }
 
     /**
@@ -58,7 +95,16 @@ public class FileStats {
      * @return the most frequently appeared character
      */
     public char getMostPopularCharacter() {
-        throw new ExerciseNotCompletedException(); //todo
+        return checkCharacter;
+        //      throw new ExerciseNotCompletedException(); //todo
+    }
+
+    private char findMostPopularCharacter(Map<Character, Long> characterCountMap) {
+        return characterCountMap.entrySet()
+                .stream()
+                .max(comparing(Map.Entry::getValue))
+                .get()
+                .getKey();
     }
 
     /**
@@ -68,6 +114,7 @@ public class FileStats {
      * @return {@code true} if this character has appeared in the text, and {@code false} otherwise
      */
     public boolean containsCharacter(char character) {
-        throw new ExerciseNotCompletedException(); //todo
+        return characterLongMapMap.containsKey(character);
+        // throw new ExerciseNotCompletedException(); //todo
     }
 }
