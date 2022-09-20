@@ -79,7 +79,7 @@ public class ArrayList<T> implements List<T> {
      */
     @Override
     public void add(int index, T element) {
-        Objects.checkIndex(index, size);
+        Objects.checkIndex(index, size+1);
         grow();
         System.arraycopy(objects, index, objects, index + 1, size - index);
         objects[index] = element;
@@ -177,7 +177,7 @@ public class ArrayList<T> implements List<T> {
     @Override
     public boolean contains(T element) {
         for (Object object : objects) {
-            if (object == element) {
+            if (object.equals(element)) {
                 return true;
             }
         }
