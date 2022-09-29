@@ -1,6 +1,6 @@
 package com.bobocode.cs;
 
-import com.bobocode.util.ExerciseNotCompletedException;
+import static java.util.Objects.requireNonNull;
 
 /**
  * {@link HashTable} is a simple Hashtable-based implementation of {@link Map} interface with some additional methods.
@@ -28,6 +28,38 @@ import com.bobocode.util.ExerciseNotCompletedException;
  */
 public class HashTable<K, V> implements Map<K, V> {
 
+    static class Node<K, V> {
+        K key;
+        V value;
+        Node<K, V> next;
+
+        public Node(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    private static final float RESIZE_THRESHOLD = 1.0f;
+    public static final int INITIAL_CAPACITY = 8;
+    int size;
+    Node<K, V>[] table;
+
+    public HashTable(int initialCapacity) {
+        verifyCapacity(initialCapacity);
+        this.table = new Node[initialCapacity];
+    }
+
+    private void verifyCapacity(int capacity) {
+        if (capacity <= 0) {
+            throw new IllegalArgumentException("Capacity (table array size) must be positive");
+        }
+    }
+
+
+    public HashTable() {
+        this(INITIAL_CAPACITY);
+    }
+
     /**
      * This method is a critical part of the hast table. The main idea is that having a key, you can calculate its index
      * in the array using the hash code. Since the computation is done in constant time (O(1)), it's faster than
@@ -43,7 +75,8 @@ public class HashTable<K, V> implements Map<K, V> {
      * @return array index of the given key
      */
     public static int calculateIndex(Object key, int tableCapacity) {
-        throw new ExerciseNotCompletedException(); // todo:
+        int hash = key.hashCode() ^ (key.hashCode() >> 16);
+        return hash & (tableCapacity - 1);
     }
 
     /**
@@ -59,8 +92,42 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public V put(K key, V value) {
-        throw new ExerciseNotCompletedException(); // todo:
+        resizeIfNeeded();
+        return putOnTable(table, key, value);
     }
+
+    private void resizeIfNeeded() {
+        if (size / (float) table.length > RESIZE_THRESHOLD) {
+            resizeTable(2 * table.length);
+        }
+    }
+
+    private V putOnTable(Node<K, V>[] table, K key, V value) {
+        var newNode = new Node<>(requireNonNull(key), requireNonNull(value));
+        var index = calculateIndex(key, table.length);
+        if (table[index] == null) { // add new head key
+            table[index] = newNode;
+        } else {
+            var current = table[index];
+            while (current.next != null) { // iterate linked list to new key
+                if (current.key.equals(key)) {
+                    var prevValue = current.value;
+                    current.value = value;
+                    return prevValue;
+                }
+                current = current.next;
+            }
+            if (current.key.equals(key)) {
+                var prevValue = current.value;
+                current.value = value;
+                return prevValue;
+            }
+            current.next = newNode;
+        }
+        size++;
+        return null;
+    }
+
 
     /**
      * Retrieves a value by the given key. It uses calculateIndex method to find the corresponding array index.
@@ -71,7 +138,15 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public V get(K key) {
-        throw new ExerciseNotCompletedException(); // todo:
+        var index = calculateIndex(requireNonNull(key), table.length);
+        var current = table[index];
+        while (current != null) {
+            if (current.key.equals(key)) {
+                return current.value;
+            }
+            current = current.next;
+        }
+        return null;
     }
 
     /**
@@ -82,7 +157,7 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public boolean containsKey(K key) {
-        throw new ExerciseNotCompletedException(); // todo:
+        return get(key) != null;
     }
 
     /**
@@ -93,7 +168,16 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public boolean containsValue(V value) {
-        throw new ExerciseNotCompletedException(); // todo:
+        for (var head : table) {
+            var current = head;
+            while (current != null) {
+                if (current.value.equals(value)) {
+                    return true;
+                }
+                current = current.next;
+            }
+        }
+        return false;
     }
 
     /**
@@ -103,7 +187,7 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public int size() {
-        throw new ExerciseNotCompletedException(); // todo:
+        return size;
     }
 
     /**
@@ -113,7 +197,7 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public boolean isEmpty() {
-        throw new ExerciseNotCompletedException(); // todo:
+        return size == 0;
     }
 
     /**
@@ -124,8 +208,28 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public V remove(K key) {
-        throw new ExerciseNotCompletedException(); // todo:
+        var index = calculateIndex(requireNonNull(key), table.length);
+        var current = table[index];
+        if (current != null) {
+            if (current.key.equals(key)) {
+                var value = current.value;
+                table[index] = current.next;
+                size--;
+                return value;
+            }
+            while (current.next != null) {
+                if (current.next.key.equals(key)) {
+                    var value = current.next.value;
+                    current.next = current.next.next;
+                    size--;
+                    return value;
+                }
+                current = current.next;
+            }
+        }
+        return null;
     }
+
 
     /**
      * It's a special toString method dedicated to help you visualize a hash table. It creates a string that represents
@@ -150,7 +254,22 @@ public class HashTable<K, V> implements Map<K, V> {
      */
     @Override
     public String toString() {
-        throw new ExerciseNotCompletedException(); // todo:
+        StringBuilder stringBuilder = new StringBuilder();
+        int n = table.length;
+        for (int i = 0; i < n; i++) {
+            stringBuilder.append(i).append(": ");
+            var current = table[i];
+            if (current != null) {
+                while (current.next != null) {
+                    stringBuilder.append(current.key).append("=").append(current.value).append(" -> ");
+                    current = current.next;
+                }
+                stringBuilder.append(current.key).append("=").append(current.value).append("\n");
+            } else {
+                stringBuilder.append("\n");
+            }
+        }
+        return stringBuilder.toString();
     }
 
     /**
@@ -167,6 +286,15 @@ public class HashTable<K, V> implements Map<K, V> {
      * @param newCapacity a size of the new underlying array
      */
     public void resizeTable(int newCapacity) {
-        throw new ExerciseNotCompletedException(); // todo:
+        verifyCapacity(newCapacity);
+        @SuppressWarnings("unchecked") Node<K, V>[] newTable = new Node[newCapacity];
+        for (var head : table) {
+            var current = head;
+            while (current != null) {
+                putOnTable(newTable, current.key, current.value);
+                current = current.next;
+            }
+        }
+        table = newTable;
     }
 }
